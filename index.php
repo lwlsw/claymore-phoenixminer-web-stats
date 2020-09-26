@@ -33,6 +33,7 @@ $parser->parse_all_json_rpc_calls();
 <!DOCTYPE html>
 <html lang='en' class=''>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=0">
     <title><?= $parser->miner_count ?> Miners: <?= $parser->global_hashrate ?> MH/s</title>
     <script src='//production-assets.codepen.io/assets/editor/live/console_runner-079c09a0e3b9ff743e39ee2d5637b9216b3545af0de366d4b9aad9dc87e26bfd.js'></script>
     <script src='//production-assets.codepen.io/assets/editor/live/events_runner-73716630c22bbc8cff4bd0f07b135f00a0bdc5d14629260c3ec49e5606f98fdd.js'></script>
@@ -186,11 +187,17 @@ $parser->parse_all_json_rpc_calls();
             position: relative;
             display: inline-block;
             border-radius: 5px;
-            width: 480px;
-            height: 540px;
+            /*width: 480px;
+            height: 540px;*/
             vertical-align: top;
             margin-bottom: 10px;
         }
+		@media screen and (min-width:500px){
+			.box {
+				width: 480px;height: 540px;
+			}
+		}
+		/* css注释：设置了浏览器宽度不小于1201px时 abc 显示1200px宽度 */
 
         .box-down {
             background: linear-gradient(#9e3935, #993259);
@@ -277,8 +284,11 @@ $parser->parse_all_json_rpc_calls();
 </head>
 <body>
 <div class="stats stats--main">
-    <div class="stats__amount">Global Hashrate: <?= $parser->global_hashrate ?> MH/s</div>
+    <div class="stats__amount">总哈希值: <?= $parser->global_hashrate ?> MH/s</div>
 </div>
+<?php
+print_r($parser);
+?>
 <?php foreach ($parser->miner_data_results as $name => $miner) { ?>
     <div class="box <?php if ($parser->miner_status->{$name} != 1) { ?> box-down <?php } ?>">
         <div class="box__header">
@@ -303,18 +313,18 @@ $parser->parse_all_json_rpc_calls();
         <div class="box__body">
             <div class="stats stats--main">
                 <div class="stats__name"><?= $name; ?> (<?= $miner->coin ?>)</div>
-                <div class="stats__caption">Miner: <?= $miner->version ?></div>
+                <div class="stats__caption">版本: <?= $miner->version ?></div>
                 <div class="stats__change">
-                    <div class="stats__value stats__value--positive">Uptime</div>
+                    <div class="stats__value stats__value--positive">开机时间</div>
                     <div class="stats__period"><?= $miner->uptime ?></div>
                 </div>
             </div>
-            <div class="stats">
+            <!--<div class="stats">
                 <div class="stats__amount">Pool</div>
                 <div class="stats__caption"><?= $miner->pool ?></div>
-            </div>
+            </div>-->
             <div class="stats">
-                <div class="stats__amount">Shares (Submitted / Stale / Rejected)</div>
+                <div class="stats__amount">分享 (已提交 / 失效 / 拒绝)</div>
                 <div class="stats__caption">
                     <div class="stats__value--positive" style="display: inline;"><?= number_format($miner->stats->shares, 0) ?></div>
                     / <?= number_format($miner->stats->stale, 0) ?> /
@@ -322,27 +332,27 @@ $parser->parse_all_json_rpc_calls();
                 </div>
             </div>
             <div class="stats">
-                <div class="stats__amount">Miner Hashrate <? if (!is_null($miner->profitability->profit)) { ?>(Daily Profit)<? } ?></div>
+                <div class="stats__amount">矿机哈希值 <? if (!is_null($miner->profitability->profit)) { ?>(Daily Profit)<? } ?></div>
                 <div class="stats__caption">
 					<?= $miner->stats->hashrate ?> MH/s <? if (!is_null($miner->profitability->profit)) { ?>(<?= $parser->show_profit($miner->profitability->profit) ?>)<? } ?>
                 </div>
             </div>
             <div class="stats">
-                <div class="stats__amount">Video Card Stats</div>
+                <div class="stats__amount">显卡状态</div>
                 <div class="stats__caption">
                     <table width="100%">
                         <thead>
                         <tr>
-                            <th class="stats__amount">Card</th>
-                            <th class="stats__amount">Hashrate</th>
-                            <th class="stats__amount">GPU Temp</th>
-                            <th class="stats__amount">Fan %</th>
+                            <th class="stats__amount">显卡</th>
+                            <th class="stats__amount">哈希值</th>
+                            <th class="stats__amount">GPU温度</th>
+                            <th class="stats__amount">风扇转速</th>
                         </tr>
                         </thead>
                         <tbody>
 						<?php foreach ($miner->card_stats as $key => $stat) { ?>
                             <tr>
-                                <th>Card <?= $key; ?></th>
+                                <th>卡<?= $key; ?></th>
                                 <th><?= number_format($stat->hashrate, 2) ?> MH/s</th>
                                 <th><?= $parser->show_temp_warning($stat->temp, "&deg; C") ?></th>
                                 <th><?= $parser->show_fan_warning($stat->fan, "%") ?></th>
