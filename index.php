@@ -286,9 +286,6 @@ $parser->parse_all_json_rpc_calls();
 <div class="stats stats--main">
     <div class="stats__amount">总哈希值: <?= $parser->global_hashrate ?> MH/s</div>
 </div>
-<?php
-print_r($parser);
-?>
 <?php foreach ($parser->miner_data_results as $name => $miner) { ?>
     <div class="box <?php if ($parser->miner_status->{$name} != 1) { ?> box-down <?php } ?>">
         <div class="box__header">
@@ -313,7 +310,12 @@ print_r($parser);
         <div class="box__body">
             <div class="stats stats--main">
                 <div class="stats__name"><?= $name; ?> (<?= $miner->coin ?>)</div>
-                <div class="stats__caption">版本: <?= $miner->version ?></div>
+                <div class="stats__caption">平均时间: <?
+                if($miner->stats->shares)
+					echo number_format($miner->minutes/((int)$miner->stats->shares),2).' 分';
+				else
+					echo '无限';
+				?></div>
                 <div class="stats__change">
                     <div class="stats__value stats__value--positive">开机时间</div>
                     <div class="stats__period"><?= $miner->uptime ?></div>
@@ -326,9 +328,9 @@ print_r($parser);
             <div class="stats">
                 <div class="stats__amount">分享 (已提交 / 失效 / 拒绝)</div>
                 <div class="stats__caption">
-                    <div class="stats__value--positive" style="display: inline;"><?= number_format($miner->stats->shares, 0) ?></div>
-                    / <?= number_format($miner->stats->stale, 0) ?> /
-                    <div class="stats__value--negative" style="display: inline;"><?= number_format($miner->stats->rejected, 0) ?></div>
+                    <div class="stats__value--positive" style="display: inline;"><?= $miner->stats->shares ?></div>
+                    / <?= $miner->stats->stale ?> /
+                    <div class="stats__value--negative" style="display: inline;"><?= $miner->stats->rejected ?></div>
                 </div>
             </div>
             <div class="stats">
@@ -350,6 +352,9 @@ print_r($parser);
                         </tr>
                         </thead>
                         <tbody>
+                        <?php
+                        if($miner->card_stats){
+						?>
 						<?php foreach ($miner->card_stats as $key => $stat) { ?>
                             <tr>
                                 <th>卡<?= $key; ?></th>
@@ -357,6 +362,7 @@ print_r($parser);
                                 <th><?= $parser->show_temp_warning($stat->temp, "&deg; C") ?></th>
                                 <th><?= $parser->show_fan_warning($stat->fan, "%") ?></th>
                             </tr>
+						<?php } ?>
 						<?php } ?>
                         </tbody>
                     </table>

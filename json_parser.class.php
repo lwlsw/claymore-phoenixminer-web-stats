@@ -73,18 +73,25 @@ class json_parser
 				$offset = new DateTime('@' . $minutes * 60);
 				$diff = $zero->diff($offset);
 				$miner_data->uptime = $diff->format('%ad %hh %im');
+				$miner_data->minutes = $minutes;
 				$hashrate_stats = explode(';', $result[2]);
 				$card_hashrate_stats = explode(';', $result[3]);
 				$fan_and_temps = explode(";", $result[6]);
 				$miner_data->pool = $result[7];
 				$invalid_share_stats = $result[8];
 
-
+				//获取console日志
+				$miner_console = @file_get_contents('http://'.$server->hostname.':'.$server->port);
+				$miner_fen_share_temp = GetTextArea($miner_console,'GPU #','Pool switches');
+				$miner_fen_share = GetTextArea($miner_fen_share_temp,'Total Shares:',',');
+				$miner_fen_jujue = GetTextArea($miner_fen_share_temp,'Rejected:',',');
+				$miner_fen_shixiao = GetTextArea($miner_fen_share_temp,'Incorrect ETH shares:',"</font>");
+				$miner_fen_shixiao = str_replace('none','0',$miner_fen_shixiao);
 				$miner_data->stats = (object)[
 					'hashrate' => round($hashrate_stats[0] / 1000, 2),
-					'shares' => $hashrate_stats[1],
-					'stale' => $invalid_share_stats[0],
-					'rejected' => $hashrate_stats[2]
+					'shares' => $miner_fen_share?trim($miner_fen_share):$hashrate_stats[1],
+					'stale' => $miner_fen_shixiao?trim($miner_fen_shixiao):$invalid_share_stats[0],
+					'rejected' => $miner_fen_jujue?trim($miner_fen_jujue):$hashrate_stats[2]
 				];
 
 				$miner_data->card_stats = [];
@@ -219,4 +226,15 @@ class json_parser
 }
 
 
+function GetTextArea($html,$str_start,$str_end){
+	if($html==""||$str_start==""){ return ""; }
+	$start_pos=@strpos($html,$str_start);
+	if($start_pos===false)return '';
+	$end_pos=strpos($html,$str_end, $start_pos+1);
+	if($end_pos>$start_pos && $end_pos!==false){
+		$begin_pos=$start_pos+strlen($str_start);
+		return substr($html, $begin_pos,$end_pos-$begin_pos);
+	} 
+	else return '';
+}
 ?>
