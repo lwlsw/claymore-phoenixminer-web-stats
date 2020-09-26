@@ -34,7 +34,7 @@ $parser->parse_all_json_rpc_calls();
 <html lang='en' class=''>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=0">
-    <title><?= $parser->miner_count ?> Miners: <?= $parser->global_hashrate ?> MH/s</title>
+    <title><?= $parser->miner_count ?> 矿机: <?= $parser->global_hashrate ?> MH/s</title>
     <script src='//production-assets.codepen.io/assets/editor/live/console_runner-079c09a0e3b9ff743e39ee2d5637b9216b3545af0de366d4b9aad9dc87e26bfd.js'></script>
     <script src='//production-assets.codepen.io/assets/editor/live/events_runner-73716630c22bbc8cff4bd0f07b135f00a0bdc5d14629260c3ec49e5606f98fdd.js'></script>
     <script src='//production-assets.codepen.io/assets/editor/live/css_live_reload_init-2c0dc5167d60a5af3ee189d570b1835129687ea2a61bee3513dee3a50c115a77.js'></script>
@@ -311,8 +311,9 @@ $parser->parse_all_json_rpc_calls();
             <div class="stats stats--main">
                 <div class="stats__name"><?= $name; ?> (<?= $miner->coin ?>)</div>
                 <div class="stats__caption">平均时间: <?
-                if($miner->stats->shares)
-					echo number_format($miner->minutes/((int)$miner->stats->shares),2).' 分';
+				$miner_shares = (int)$miner->stats->shares;
+                if($miner_shares)
+					echo number_format($miner->minutes/$miner_shares,2).' 分';
 				else
 					echo '无限';
 				?></div>
